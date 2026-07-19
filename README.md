@@ -73,7 +73,7 @@ By default, the seed creates an admin with:
 - Username: `admin`
 - Password: `admin123`
 
-Change these in `.env` before running the seed.
+Change these in `.env` before running the seed. You will use these credentials to log in at `/login`.
 
 ### 6. Start the development server
 
@@ -91,18 +91,16 @@ npx tsx scripts/start-bot.ts
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | Yes | SQLite database URL. Default: `file:./dev.db` |
-| `JWT_SECRET` | Yes | Secret key used to sign JWT tokens. Generate a strong random string. |
-| `ADMIN_USERNAME` | Yes | Admin username for the hidden login. |
-| `ADMIN_PASSWORD` | Yes | Admin password. Use a strong password in production. |
-| `TELEGRAM_BOT_TOKEN` | No* | Token from [@BotFather](https://t.me/BotFather). Required for Telegram bot features. |
-| `TELEGRAM_CHAT_ID` | No* | Your Telegram chat ID. Required for Telegram bot features. |
-| `APP_URL` | No* | Deployed app URL (e.g., `https://your-app.vercel.app`). Required for Telegram Mini App and webhooks. |
-| `CRON_SECRET` | No* | Secret token for securing cron/report endpoints. Required for scheduled reports. |
-
-\* Required only if you use the corresponding feature.
+| Variable | Required for core | Required for Telegram/cron | Description |
+|----------|-------------------|----------------------------|-------------|
+| `DATABASE_URL` | Yes | Yes | SQLite database URL. Default: `file:./dev.db` |
+| `JWT_SECRET` | Yes | Yes | Secret key used to sign JWT tokens. Generate a strong random string. |
+| `ADMIN_USERNAME` | Yes | Yes | Admin username for the hidden login. |
+| `ADMIN_PASSWORD` | Yes | Yes | Admin password. Use a strong password in production. |
+| `TELEGRAM_BOT_TOKEN` | No | Yes | Token from [@BotFather](https://t.me/BotFather). |
+| `TELEGRAM_CHAT_ID` | No | Yes | Your Telegram chat ID. |
+| `APP_URL` | No | Yes | Deployed app URL (e.g., `https://your-app.vercel.app`). Used for Telegram Mini App and webhooks. |
+| `CRON_SECRET` | No | Yes | Secret token for securing cron/report endpoints. |
 
 ### Example `.env`
 
@@ -160,7 +158,7 @@ CRON_SECRET=your_cron_secret_here
    prisma generate && prisma migrate deploy && next build
    ```
 
-5. Add Vercel Cron Jobs for daily, weekly, and monthly reports, using `/api/cron/reports?secret=<CRON_SECRET>`.
+5. Add Vercel Cron Jobs for daily, weekly, and monthly reports, using `/api/cron/reports?secret=<CRON_SECRET>` (replace `<CRON_SECRET>` with the value from your environment variables).
 
 ### Telegram Mini App
 
