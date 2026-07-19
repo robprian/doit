@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Source {
+  id           String        @id @default(cuid())
+  name         String
+  type         SourceType
+  icon         String        @default("wallet")
+  color        String        @default("#6366f1")
+  balance      Decimal       @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  amount      Decimal
+  type        TransactionType
+  description String?
+  category    String
+  date        DateTime        @default(now())
+  sourceId    String
+  source      Source          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  ocrResult   OCRResult?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model OCRResult {
+  id            String       @id @default(cuid())
+  imageUrl      String?
+  rawText       String
+  parsedAmount  Decimal?
+  parsedSource  String?
+  status        OCRStatus    @default(PENDING)
+  transactionId String?      @unique
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+enum SourceType {
+  BANK
+  E_MONEY
+  CASH
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum OCRStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+}
