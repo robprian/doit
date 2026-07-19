@@ -26,10 +26,8 @@ jobs:
           node-version: 20
           cache: npm
 
-      # package-lock.json is not committed yet, so use npm install.
-      # Switch to npm ci once a lockfile is committed.
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Generate Prisma client
         run: npm run db:generate
@@ -37,12 +35,20 @@ jobs:
       - name: Run lint
         run: npm run lint
 
+      # Type-check separately because the Next.js build skips type-checking
+      # to keep memory usage lower on constrained runners.
+      - name: Type-check
+        run: npx tsc --noEmit
+
       - name: Build Next.js app
         run: npm run build
         env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
           # Use a temporary SQLite database for build-time Prisma operations.
           # Override this in repository secrets if your build requires a different database.
           DATABASE_URL: file:/tmp/money-tracker-build.db
-          # JWT secret pulled from repository secrets; configure under Settings > Secrets.
-          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-jwt-secret' }}
+          # JWT secret pulled from repository secrets.
+          # Configure at: https://github.com/robprian/doit/settings/secrets/actions
+          # If your build/runtime requires this secret, the job will fail when unset.
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
           NEXT_TELEMETRY_DISABLED: 1

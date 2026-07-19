@@ -4,6 +4,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Lint/type-check are run as separate CI steps to reduce peak build memory.
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
+  productionBrowserSourceMaps: false,
   async headers() {
     return [
       {
